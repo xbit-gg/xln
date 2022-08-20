@@ -1,0 +1,209 @@
+
+syntax = "proto3";
+
+package xlnrpc;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/longrunning/operations.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+import "xlnrpc/xln.proto";
+
+option go_package = "github.com/xbit-gg/xln/xlnrpc";
+
+service XlnUser {
+    // Gets a particular user.
+    rpc GetUser(GetUserRequest) returns (User) {
+        option (google.api.http) = {
+            get: "/v1/{name=users/*}"
+        };
+        option (google.api.method_signature) = "name";
+    }
+    // Generates an LNURL auth link that can be used to link an auth key to the user.
+    // See https://github.com/fiatjaf/lnurl-rfc/blob/luds/04.md for details.
+    rpc LinkAuthKey(LinkAuthKeyRequest) returns (google.longrunning.Operation) {
+        option (google.api.http) = {
+            post: "/v1/{name=users/*}:linkAuthKey"
+            body: "*"
+        };
+        option (google.longrunning.operation_info) = {
+            metadata_type: "xlnrpc.LNURL"
+            response_type: "xlnrpc.LinkAuthKeyResponse"
+        };
+    }
+    // Generates a LNURL auth link that can be used to authenticate as a previously linked auth key.
+    // See https://github.com/fiatjaf/lnurl-rfc/blob/luds/04.md for details.
+    rpc Login(LoginRequest) returns (google.longrunning.Operation) {
+        option (google.api.http) = {
+            post: "/v1/{name=users/*}:login"
+            body: "*"
+        };
+        option (google.longrunning.operation_info) = {
+            metadata_type: "xlnrpc.LNURL"
+            response_type: "xlnrpc.LoginReponse"
+        };
+    }
+    
+    // Gets a particular wallet.
+    rpc GetWallet(GetWalletRequest) returns (Wallet) {
+        option (google.api.http) = {
+            get: "/v1/{name=users/*/wallets/*}"
+        };
+        option (google.api.method_signature) = "name,wallet_view";
+    }
+    // Lists all wallets of a parent user.
+    rpc ListWallets(ListWalletsRequest) returns (ListWalletsResponse) {
+        option (google.api.http) = {
+            get: "/v1/{parent=/users/*}/wallets"
+        };
+        option (google.api.method_signature) = "parent,wallet_view";
+    }
+    // Creates a new wallet.
+    rpc CreateWallet(CreateWalletRequest) returns (Wallet) {
+        option (google.api.http) = {
+            post: "/v1/{name=users/*/wallets/*}"
+            body: "wallet"
+        };
+        option (google.api.method_signature) = "parent,wallet";
+    }
+    // Updates the specified fields of a wallet.
+    rpc UpdateWallet(UpdateWalletRequest) returns (Wallet) {
+        option (google.api.http) = {
+            patch: "/v1/{wallet.name=users/*/wallets/*}"
+            body: "wallet"
+        };
+        option (google.api.method_signature) = "wallet,update_mask";
+    }
+    // Deletes a wallet.
+    rpc DeleteWallet(DeleteWalletRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/v1/{name=users/*/wallets/*}"
+        };
+        option (google.api.method_signature) = "name";
+    }
+
+    // Lists all transactions of a parent wallet.
+    // Lists all transactions of a user when the `-` wildcard is used in the place of a wallet.
+    rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
+        option (google.api.http) = {
+            get: "/v1/{parent=/users/*/wallets/*}/transactions"
+        };
+        option (google.api.method_signature) = "parent,transaction_view";
+    }
+}
+
+message GetUserRequest {
+    // Required. The name of the user.
+    // Values are of the form `users/<user>`.
+    string name = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/User"
+        }
+    ];
+}
+
+message LinkAuthKeyRequest {
+    // Required. The name of the user.
+    // Values are of the form `users/<user>`.
+    string name = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/User"
+        }
+    ];
+    // A friendly name used to identify the linked auth key.
+    string display_name = 2;
+}
+
+message LinkAuthKeyReponse {
+    LinkedAuthKey linked_auth_key = 1;
+}
+
+message LoginRequest {
+    // Required. The name of the user.
+    // Values are of the form `users/<user>`.
+    string name = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/User"
+        }
+    ];
+}
+
+message LoginResponse {
+    // The user's api_key.
+    string api_key = 1;
+}
+
+message CreateWalletRequest {
+    // Required. The name of the user in which to create the wallet. 
+    // Values are of the form `users/<user>`.
+    string parent = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/User"
+        }
+    ];
+  // Required. The ID of the user to create.  Valid identifiers are of the
+  // form `[a-z][-a-z0-9]*[a-z0-9]` and must be between 2 and 64 characters in
+  // length.
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteWalletRequest {
+    // Required. The name of the wallet to delete.
+    // Values are of the form `users/<user>/wallets/<wallet>`.
+    string name = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/Wallet"
+        }
+    ];
+}
+
+message DeleteWalletResponse {}
+
+message UpdateWalletRequest {
+    // Required. The wallet to update, which much always include the wallet name.
+    Wallet wallet = 1 [(google.api.field_behavior) = REQUIRED];
+    // Only values in update_mask will be updated.
+    // Accepted values are: `display_name`, `locked`.
+    google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListWalletsRequest {
+    // Required. The name of the user for which a list of wallets is requested.
+    // Values are of the form `users/<user>`.
+    string parent = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/User"
+        }
+    ];
+    WalletView wallet_view = 2;
+}
+
+message ListWalletsResponse {
+    repeated Wallet wallets = 2;
+}
+
+message ListTransactionsRequest {
+    // Required. The parent of the requested wallets.
+    // Values are of the form `users/<user>/wallets/<wallet>` or
+    // `users/<user>/wallets/-`.
+    string parent = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+        type: "xln.xbit.gg/Wallet"
+        }
+    ];
+    TransactionView transaction_view = 2;
+}
+
+message ListTransactionsResponse {
+    repeated Transaction transaction = 1;
+}

@@ -1,0 +1,210 @@
+
+syntax = "proto3";
+
+package xlnrpc;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/longrunning/operations.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/xbit-gg/xln/xlnrpc";
+
+service XlnWallet {
+    rpc GetWallet(GetWalletRequest) returns (Wallet);
+    rpc LinkAuthKey(LinkAuthKeyRequest) returns (google.longrunning.Operation);
+    rpc Login(LoginRequest) returns (google.longrunning.Operation);
+
+    rpc PayInvoice(PayInvoiceRequest) returns (google.longrunning.Operation);
+    rpc PayWallet(TransferRequest) returns (TransferResponse);
+    rpc CreateInvoice(CreateInvoiceRequest) returns (Transaction);
+
+    rpc GetTransaction(GetTransactionRequest) returns (Transaction);
+    rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
+    rpc SubscribeTransactions(SubscribeTransactionsRequest) returns (stream Transaction);
+
+    rpc GetLNURLW(GetLNURLWRequest) returns (LNURLW);
+    rpc ListLNURLWs(ListLNURLWsRequest) returns (ListLNURLWsResponse);
+    rpc CreateLNURLW(CreateLNURLWRequest) returns (LNURLW);
+    rpc UpdateLNURLW(UpdateLNURLWRequest) returns (LNURLW);
+    rpc DeleteLNURLW(DeleteLNURLWRequest) returns (google.protobuf.Empty);
+
+    rpc GetLNURLP(GetLNURLPRequest) returns (LNURLP);
+    rpc ListLNURLPs(ListLNURLPsRequest) returns (ListLNURLPsResponse);
+    rpc CreateLNURLP(CreateLNURLPRequest) returns (LNURLP);
+    rpc UpdateLNURLP(UpdateLNURLPRequest) returns (LNURLP);
+    rpc DeleteLNURLP(DeleteLNURLPRequest) returns (google.protobuf.Empty);
+}
+
+message WalletLoginRequest {
+    string username = 1;
+    string wallet_id = 2;
+}
+
+message WalletLoginResponse {
+    string lnurl = 1;
+}
+
+message GetWalletRequest {
+    string wallet_id = 1;
+}
+
+message GetWalletResponse {
+  Wallet wallet = 1;
+}
+
+message ListTransactionsRequest {
+    string wallet_id = 1;
+    // if not specified then records will be retrieved form the earliest time possible
+    google.protobuf.Timestamp from_time = 2;
+    // if unspecificed then records will be retrieved from the current time
+    google.protobuf.Timestamp to_time = 3;
+    // by default records are not limited (when set to 0)
+    uint32 limit = 4;
+    // by default, the transaction records are returned chronollogically by creation time
+    bool descending = 5;
+    // by default, the record offset is 0 (no records will be skipped)
+    uint32 offset = 6;
+}
+
+message ListTransactionsResponse {
+    repeated Transaction transactions = 1;
+    // If equal to 0, this means the request was not related to pagination;
+    // If equal to -1 then there are no more matching records related to a pagination request;
+    // If positive, then that is the next record index used in pagination.
+    int32 next_offset = 2;
+    // the total number of records that match the transaction query
+    uint64 total_records = 3;
+}
+
+
+message GetTransactionRequest {
+    string wallet_id = 1;
+    string tx_id = 2;
+}
+
+message GetTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message CreateInvoiceRequest {
+    string wallet_id = 1;
+    string memo = 2;
+    int64 value = 3;
+    // Optional
+    int64 expiry = 4;
+}
+
+message CreateInvoiceResponse {
+    Invoice invoice = 1;
+}
+
+message ListInvoicesRequest {
+    string wallet_id = 1;
+}
+
+message ListInvoicesResponse {
+    repeated string invoices = 1;
+}
+
+message GetInvoiceRequest {
+    string wallet_id = 1;
+    string payment_hash = 2;
+}
+
+message GetInvoiceResponse {
+    Invoice invoice = 1;
+}
+
+message PayInvoiceRequest {
+    string wallet_id = 1;
+    string payment_request = 2;
+    // Optional
+    uint64 amount = 3;
+}
+
+message PayInvoiceResponse {
+    bool payment_initiated = 1;
+}
+
+message PayInvoiceSyncResponse {
+    bool success = 1;
+    uint64 amount = 2;
+    uint64 fees_paid = 3;
+    string failure_reason = 4;
+}
+
+message ListPendingInvoicesRequest {
+    string wallet_id = 1;
+}
+
+message PendingInvoice {
+    string payment_hash = 1;
+    google.protobuf.Timestamp created_at = 2;
+    uint64 amount = 3;
+}
+
+message ListPendingInvoicesResponse {
+    repeated PendingInvoice pending_invoices = 1;
+    uint64 count = 2;
+}
+
+message ListPendingPaymentsRequest {
+    string wallet_id = 1;
+}
+
+message PendingPayment {
+    string payment_hash = 1;
+    google.protobuf.Timestamp created_at = 2;
+    uint64 amount = 3;
+}
+
+message ListPendingPaymentsResponse {
+    repeated PendingPayment pending_payments = 1;
+    uint64 count = 2;
+}
+
+message TransferRequest {
+    string wallet_id = 1;
+    string to_wallet_id = 2;
+    uint64 amount = 3;
+}
+
+message TransferResponse {
+    bool success = 1;
+    string failure_reason = 2;
+    string transaction_id = 3;
+}
+
+message LinkWalletRequest {
+    string wallet_id = 1;
+    string label = 2;
+}
+
+message LinkWalletResponse {
+    string lnurl = 1;
+}
+
+message CreateLNURLWRequest{
+    string wallet_id = 1;
+    string description = 2;
+    uint64 minMsats = 3;
+    uint64 maxMsats = 4;
+    uint32 maxReuses = 5;
+    google.protobuf.Timestamp expire_at = 6;
+  }
+  
+  message CreateLNURLWResponse{
+    string url = 1;
+  }
+  
+  message GetLNURLWRequest {
+    string wallet_id = 1;
+    string k1 = 2;
+  }
+  
+  message GetLNURLWResponse {
+    string url = 1;
+  }

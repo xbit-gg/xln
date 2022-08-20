@@ -1,0 +1,5 @@
+package xln
+
+func ServerEndpoint() {
+
+}
