@@ -1,0 +1,84 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: xlnrpc.Xln.GetInfo
+      post: "/v1"
+      body: "*"
+
+      # Wallet
+    - selector: xlnrpc.Xln.CreateWallet
+      post: "/v1/wallets"
+      body: "*"
+    - selector: xlnrpc.Xln.DeleteWallet
+      delete: "/v1/wallets/{wallet_id}"
+    - selector: xlnrpc.Xln.UpdateWalletOptions
+      patch: "/v1/wallets/{wallet_id}"
+      body: "*"
+    - selector: xlnrpc.Xln.ListWallets
+      get: "/v1/wallets"
+    - selector: xlnrpc.Xln.GetWallet
+      get: "/v1/wallets/{wallet_id}"
+      # Wallet: auth
+    - selector: xlnrpc.Xln.LinkWallet
+      post: "/v1/wallets/{wallet_id}/link"
+      body: "*"
+    - selector: xlnrpc.Xln.WalletLogin
+      post: "/v1/wallets/{wallet_id}/login"
+      body: "*"
+      # Wallet: invoices
+    - selector: xlnrpc.Xln.CreateInvoice
+      post: "/v1/wallets/{wallet_id}/invoices"
+      body: "*"
+    - selector: xlnrpc.Xln.ListWalletInvoices
+      get: "/v1/wallets/{wallet_id}/invoices"
+    - selector: xlnrpc.Xln.GetWalletInvoice
+      get: "/v1/wallets/{wallet_id}/invoices/{payment_hash}"
+    - selector: xlnrpc.Xln.PayInvoice
+      post: "/v1/wallets/{wallet_id}/pay"
+      body: "*"
+    - selector: xlnrpc.Xln.PayInvoiceSync
+      post: "/v1/wallets/{wallet_id}/paysync"
+      body: "*"
+      # Wallet: pending invoices
+    - selector: xlnrpc.Xln.ListWalletPendingInvoices
+      get: "/v1/wallets/{wallet_id}/pendinginvoices"
+      # Wallet: pending payments
+    - selector: xlnrpc.Xln.ListWalletPendingPayments
+      get: "/v1/wallets/{wallet_id}/pendingpayments"
+      # Wallet: transactions
+    - selector: xlnrpc.Xln.ListWalletTransactions
+      get: "/v1/wallets/{wallet_id}/transactions"
+    - selector: xlnrpc.Xln.GetWalletTransaction
+      get: "/v1/wallets/{wallet_id}/transactions/{tx_id}"
+    - selector: xlnrpc.Xln.Transfer
+      post: "/v1/wallets/{wallet_id}/transfer"
+      body: "*"
+      # Wallet: withdraw
+    - selector: xlnrpc.Xln.CreateLNURLW
+      post: "/v1/wallets/{wallet_id}/withdraws"
+    - selector: xlnrpc.Xln.GetLNURLW
+      get: "/v1/wallets/{wallet_id}/withdraws/{k1}"
+
+      # User
+    - selector: xlnrpc.Xln.GetUser
+      get: "/v1/users"
+      # User: auth
+    - selector: xlnrpc.Xln.UserLinkWallet
+      post: "/v1/users/link"
+      body: "*"
+    - selector: xlnrpc.Xln.UserLogin
+      post: "/v1/users/login"
+      body: "*"
+      # User: transactions
+    - selector: xlnrpc.Xln.ListUserTransactions
+      get: "/v1/users/transactions"
+
+      # Validation
+    - selector: xlnrpc.Xln.Validate
+      get: "/v1/validate"
+
+      # Auth
+    - selector: xlnrpc.Xln.LoginStatus
+      get: "/v1/login"

@@ -1,0 +1,25 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: xlnrpc.XlnAdmin.GetInfo
+      get: "/admin"
+    - selector: xlnrpc.XlnAdmin.CreateUser
+      post: "/admin/users"
+      body: "*"
+    - selector: xlnrpc.XlnAdmin.DeleteUser
+      delete: "/admin/users/{username}"
+    - selector: xlnrpc.XlnAdmin.ListUsers
+      get: "/admin/users"
+    - selector: xlnrpc.XlnAdmin.UpdateWallet
+      patch: "/admin/users/{username}/wallet/{wallet_id}"
+      body: "*"
+    - selector: xlnrpc.XlnAdmin.AdminDeleteWallet
+      delete: "/admin/users/{username}/wallet/{wallet_id}"
+    - selector: xlnrpc.XlnAdmin.GetInvoice
+      get: "/admin/invoices/{payment_hash}"
+    - selector: xlnrpc.XlnAdmin.ListPendingInvoices
+      get: "/admin/pendinginvoices"
+    - selector: xlnrpc.XlnAdmin.ListPendingPayments
+      get: "/admin/pendingpayments"

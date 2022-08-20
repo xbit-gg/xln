@@ -1,0 +1,128 @@
+
+syntax = "proto3";
+
+package xlnrpc;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/xbit-gg/xln/xlnrpc";
+
+service XlnAdmin {
+    /*
+    Get general info about XLN
+     */
+    rpc GetInfo(GetAdminInfoRequest) returns (GetAdminInfoResponse);
+
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+    rpc UpdateWallet(UpdateWalletRequest) returns (UpdateWalletResponse);
+
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+
+    rpc AdminDeleteWallet(AdminDeleteWalletRequest) returns (AdminDeleteWalletResponse);
+
+    rpc GetInvoice(GetInvoiceRequest) returns (GetInvoiceResponse);
+
+    rpc ListPendingInvoices(ListPendingInvoicesRequest) returns (ListPendingInvoicesResponse);
+
+    rpc ListPendingPayments(ListPendingPaymentsRequest) returns (ListPendingPaymentsResponse);
+
+}
+
+message GetAdminInfoRequest {
+
+}
+
+message GetAdminInfoResponse {
+    string version = 1;
+    uint64 users = 2;
+}
+
+message CreateUserRequest {
+    string username = 1;
+}
+
+message CreateUserResponse {
+    string username = 1;
+    string api_key = 2;
+}
+
+message DeleteUserRequest {
+    string username = 1;
+}
+
+message DeleteUserResponse {}
+
+message UpdateWalletRequest {
+    string username = 1;
+    string wallet_id = 2;
+    string wallet_name = 3;
+    bool lock = 4;
+    bool unlock = 5;
+    bool update_balance = 6;
+    uint64 balance = 7;
+}
+
+message UpdateWalletResponse {}
+
+
+message ListUsersRequest {
+}
+
+message ListUsersResponse {
+    repeated string usernames = 1;
+}
+
+message AdminDeleteWalletRequest {
+    string username = 1;
+    string wallet_id = 2;
+}
+
+message AdminDeleteWalletResponse {}
+
+message GetInvoiceRequest {
+    string payment_hash = 1;
+}
+
+message GetInvoiceResponse {
+    string payment_hash = 1;
+    google.protobuf.Timestamp timestamp = 2;
+    google.protobuf.Timestamp settled_at = 3;
+    uint64 amount = 4;
+    string pubkey = 5;
+    string payment_request = 6;
+    string recipient_id = 7;
+    string recipient_username = 8;
+    string sender_id = 9;
+    string sender_username = 10;
+    string memo = 11;
+    string preimage = 12;
+}
+
+message ListPendingInvoicesRequest {}
+
+message PendingInvoiceSummary {
+    string payment_hash = 1;
+    google.protobuf.Timestamp created_at = 2;
+    uint64 amount = 3;
+}
+
+message ListPendingInvoicesResponse {
+    repeated PendingInvoiceSummary pending_invoices = 1;
+    uint64 total_amount = 2;
+}
+
+message ListPendingPaymentsRequest {}
+
+message PaymentSummary {
+    string payment_hash = 1;
+    google.protobuf.Timestamp created_at = 2;
+    uint64 amount = 3;
+}
+
+message ListPendingPaymentsResponse {
+    repeated PaymentSummary pending_payments = 1;
+    uint64 total_amount = 2;
+}

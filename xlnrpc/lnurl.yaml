@@ -1,0 +1,11 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: xlnrpc.LNURL.Auth
+      get: "/lnurl/auth"
+    - selector: xlnrpc.LNURL.RequestWithdraw
+      get: "/lnurl/withdraw/request"
+    - selector: xlnrpc.LNURL.Withdraw
+      get: "/lnurl/withdraw/pay"

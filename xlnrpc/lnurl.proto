@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package xlnrpc;
+
+option go_package = "github.com/xbit-gg/xln/xlnrpc";
+
+service LNURL {
+  // LUD-04: auth
+  rpc Auth(AuthRequest) returns (LNURLResponse);
+
+  rpc RequestWithdraw(RequestWithdrawRequest) returns (RequestWithdrawResponse);
+
+  rpc Withdraw(WithdrawRequest) returns (LNURLResponse);
+}
+
+message AuthRequest {
+  string k1 = 1;
+  string sig = 2;
+  string key = 3;
+}
+
+message LNURLResponse {
+  string status = 1;
+  string reason = 2;
+}
+
+message RequestWithdrawRequest {
+  string k1 = 1;
+}
+
+message RequestWithdrawResponse {
+  string status = 1;
+  string reason = 2;
+  string tag = 3;
+  string callback = 4;
+  string k1 = 5;
+  string defaultDescription = 6;
+  uint64 minWithdrawable = 7;
+  uint64 maxWithdrawable = 8;
+}
+
+message WithdrawRequest {
+  string k1 = 1;
+  string pr = 2;
+}
